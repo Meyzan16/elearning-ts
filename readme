@@ -1,0 +1,7 @@
+instal backend
+
+1.npm i bcryptjs cookie-parser cors dotenv express ioredis jsonwebtoken mongoose ts-node-dev 
+@types/bcryptjs @types/cookie-parser @types/cors @types/express @typesress @types/jsonwebtoken @types/node typescript
+
+2. npm i ejs --save-dev @types/ejs untuk  view engine yang menggunakan sintaks JavaScript untuk menghasilkan tampilan.
+3. npm i nodemailer --save-dev @types/nodemailer for email with ts
