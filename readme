@@ -18,6 +18,6 @@ instal backend
 2. git pull origin main
 3. git merger nama_branch
 4. git push origin main
-5. git branch -d nama_branch delete brach aktif jika tidak di butuhkan
-6. git push origin --delete nama_branch delete file bracng github
+5. git branch -d nama_branch //delete brach aktif jika tidak di butuhkan
+6. git push origin --delete nama_branch //delete file bracng github
 
