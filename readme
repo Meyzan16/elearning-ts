@@ -1,7 +1,13 @@
-instal backend
+1. instal  npm init
+2. install package npm i bcryptjs cookie-parser cors dotenv express ioredis jsonwebtoken mongoose ts-node-dev 
+@types/bcryptjs @types/cookie-parser @types/cors @types/expres @types/jsonwebtoken @types/node typescript
+3. create konfigurasi app.ts  dan server ts
+4. create dev di package json
+5. create body parser dan  cors origin
+6. konfigurasi database dan redis
+7. konfigurasi errorHandler dan asyncError
+8. npx tsc --init //create tsconfig.ts
 
-1.npm i bcryptjs cookie-parser cors dotenv express ioredis jsonwebtoken mongoose ts-node-dev 
-@types/bcryptjs @types/cookie-parser @types/cors @types/express @typesress @types/jsonwebtoken @types/node typescript
 
 2. npm i ejs --save-dev @types/ejs untuk  view engine yang menggunakan sintaks JavaScript untuk menghasilkan tampilan.
 3. npm i nodemailer --save-dev @types/nodemailer for email with ts
@@ -21,3 +27,7 @@ instal backend
 5. git branch -d nama_branch //delete brach aktif jika tidak di butuhkan
 6. git push origin --delete nama_branch //delete file bracng github
 
+# change branch
+1. git branch -m bracnh_bar # « jika sedang berada di branch yang akan diganti nama
+2. git push origin -d branch_lama
+3. git push origin bracnh_bar 

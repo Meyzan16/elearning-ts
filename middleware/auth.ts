@@ -28,3 +28,15 @@ export const isAuthenticated = CatchAsyncError(async(req: Request, res: Response
 
 
 }); 
+
+
+//validate user role 
+export const authorizeRoles = (...roles:string[]) => {
+    return(req:Request, res:Response, next:NextFunction) => {
+      if(!roles.includes((req as any).user?.role || '')){
+        return next(new ErrorHandler(`Role: ${(req as any).user?.role} is not allowed to access this resource `, 403));
+      }
+      next();
+    }
+  }
+  
