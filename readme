@@ -11,7 +11,6 @@
 
 2. npm i ejs --save-dev @types/ejs untuk  view engine yang menggunakan sintaks JavaScript untuk menghasilkan tampilan.
 3. npm i nodemailer --save-dev @types/nodemailer for email with ts
-4. npm i cloudinary
 
 1. git branch nama-branch
 2. git add
@@ -23,12 +22,12 @@
 # //kalo mau gabungkan brach
 1. chekcout ke branch utama
 2. git pull origin main
-3. git merge git merge --no-ff  nama_branch
+3. git merge --no-ff  nama_branch
 4. git push origin main
 5. git branch -D nama_branch //delete brach aktif jika tidak di butuhkan
 6. git push origin --delete nama_branch //delete file bracng github
 
 # change branch
-1. git branch -m bracnh_bar # « jika sedang berada di branch yang akan diganti nama
-2. git push origin -d branch_lama
-3. git push origin bracnh_bar 
+1. git branch -m nama_branch_baru # « jika sedang berada di branch yang akan diganti nama
+2. git push origin -d branch_lama #delete branch lama di github
+3. git push origin branch_baru  #add branch baru to github
