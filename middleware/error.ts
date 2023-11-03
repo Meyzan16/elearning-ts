@@ -23,13 +23,13 @@ export const ErrorMiddleware = (
   }
 
   //wrong jwt error
-  if (err.code === "JsonWebTokenError") {
+  if (err.name === "JsonWebTokenError") {
     const message = `Json web token is invalid, try again`;
     err = new ErrorHandler(message, 400);
   }
 
   //JWT expired
-  if (err.code === "TokenExpiredError") {
+  if (err.name === "TokenExpiredError") {
     const message = `Json web token is expired, try again`;
     err = new ErrorHandler(message, 400);
   }

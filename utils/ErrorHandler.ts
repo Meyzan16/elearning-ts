@@ -1,3 +1,4 @@
+
 class ErrorHandler extends Error {
     statusCode: Number;
 
