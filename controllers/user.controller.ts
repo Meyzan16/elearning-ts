@@ -173,12 +173,12 @@ export const loginUser = CatchAsyncError(
 
 // logout user
 export const logoutUser = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       res.cookie("access_token", "", { maxAge: 1 });
       res.cookie("refresh_token", "", { maxAge: 1 });
 
-      const userId = (req as any).user?._id || "";
+      const userId = req.user?._id || "";
       redis.del(userId);
 
       res.status(200).json({
@@ -193,7 +193,7 @@ export const logoutUser = CatchAsyncError(
 
 //update access token
 export const updateAccessToken = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const refresh_token = req.cookies.refresh_token as string;
       const decoded = JWT.verify(
@@ -226,7 +226,7 @@ export const updateAccessToken = CatchAsyncError(
         }
       );
 
-      (req as any).user = user;
+      req.user = user;
 
       res.cookie("access_token", accessToken, accessTokenOptions);
       res.cookie("refresh_token", refreshToken, refreshokenOptions);
@@ -243,9 +243,9 @@ export const updateAccessToken = CatchAsyncError(
 
 //get user info
 export const getUserInfo = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user?._id;
+      const userId = req.user?._id;
       getUserById(userId, res);
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
@@ -260,7 +260,7 @@ interface ISocialAuthBody {
   avatar: string;
 }
 export const socialAuth = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { email, name, avatar } = req.body as ISocialAuthBody;
       const user = await userModel.findOne({ email });
@@ -282,9 +282,9 @@ interface IUpdateUserInfo {
   email?: string;
 }
 export const updateUserInfo = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
-      const userId = (req as any).user?._id;
+      const userId = req.user?._id;
       const { name, email } = req.body as IUpdateUserInfo;
       const user = await userModel.findById(userId);
       if (email && user) {
@@ -317,7 +317,7 @@ interface IUpdatePassword {
   newPassword: string;
 }
 export const updatePasswordAuth = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body as IUpdatePassword;
 
@@ -326,7 +326,7 @@ export const updatePasswordAuth = CatchAsyncError(
       }
 
       const user = await userModel
-        .findById((req as any).user?._id)
+        .findById(req.user?._id)
         .select("+password");
       if (user?.password === undefined) {
         return next(new ErrorHandler("Invalid user", 400));
@@ -339,7 +339,7 @@ export const updatePasswordAuth = CatchAsyncError(
 
       user.password = newPassword;
       await user.save();
-      await redis.set((req as any).user?._id, JSON.stringify(user));
+      await redis.set(req.user?._id, JSON.stringify(user));
 
       res.status(201).json({
         success: true,
@@ -356,10 +356,10 @@ interface IUpdateProfilePicture {
   avatar: string;
 }
 export const updateProfilePicture = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { avatar } = req.body as IUpdateProfilePicture;
-      const userId = (req as any).user?._id;
+      const userId = req.user?._id;
       const user = await userModel.findById(userId);
 
       if (avatar && user) {
