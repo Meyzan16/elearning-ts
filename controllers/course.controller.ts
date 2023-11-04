@@ -5,6 +5,10 @@ import cloudinary from "cloudinary";
 import { createCourse } from "../services/course.service";
 import CourseModel from "../models/course.model";
 import { redis } from "../utils/redis";
+import mongoose from "mongoose";
+import ejs from "ejs";
+import path from "path";
+import sendMail from "../utils/sendMail";
 
 //create course
 export const uploadCourse = CatchAsyncError(
@@ -23,7 +27,7 @@ export const uploadCourse = CatchAsyncError(
       }
       await createCourse(data, res, next);
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -56,7 +60,7 @@ export const editCourse = CatchAsyncError(
         course,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -75,6 +79,8 @@ export const getSingleCourse = CatchAsyncError(
           course,
         });
       } else {
+        //menggunakan select minus untuk menghilangkan properti" tertentuu dan
+        //jika tanpa minus maka akan mengamil properti" itu saja
         const course = await CourseModel.findById(req.params.id).select(
           "-courseData.videoUrl -courseData.suggestion -courseData.questions -courseData.links"
         );
@@ -85,7 +91,7 @@ export const getSingleCourse = CatchAsyncError(
         });
       }
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -113,7 +119,7 @@ export const getAllCourse = CatchAsyncError(
         });
       }
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
@@ -131,7 +137,7 @@ export const getCourseByUser = CatchAsyncError(
 
       if (!courseExists) {
         return next(
-          new ErrorHandler("You are not eligible to access this course", 400)
+          new ErrorHandler("You are not eligible to access this course", 500)
         );
       }
 
@@ -143,7 +149,143 @@ export const getCourseByUser = CatchAsyncError(
         content,
       });
     } catch (error: any) {
-      return next(new ErrorHandler(error.message, 400));
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//add questions in course
+interface IAddQuestionData {
+  question: string;
+  courseId: string;
+  contentId: string;
+}
+
+export const addQuestion = CatchAsyncError(
+  async (req: any, res: Response, next: NextFunction) => {
+    try {
+      const { question, courseId, contentId }: IAddQuestionData = req.body;
+      const course = await CourseModel.findById(courseId);
+
+      //metode yang digunakan untuk memeriksa apakah suatu nilai adalah ID yang valid dalam format yang diharapkan oleh MongoDB.
+      if (!mongoose.Types.ObjectId.isValid(contentId)) {
+        return next(new ErrorHandler("Invalid course id", 400));
+      }
+
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId)
+      );
+      if (!courseContent) {
+        return next(new ErrorHandler("Invalid content id", 400));
+      }
+
+      //create a new question object
+      const newQuestion: any = {
+        user: req.user,
+        question,
+        questionReplies: [],
+      };
+
+      //add questions to our course content
+      courseContent.questions.push(newQuestion);
+
+      //save and updated course
+      await course?.save();
+
+      res.status(201).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//add answer in course question
+interface IAddAnswerData {
+  answer: string;
+  courseId: string;
+  contentId: string;
+  questionId: string;
+}
+export const addAnswer = CatchAsyncError(
+  async (req: any, res: Response, next: NextFunction) => {
+    try {
+      const { answer, courseId, contentId, questionId }: IAddAnswerData =
+        req.body;
+
+      //pertama ambil courseId
+      const course = await CourseModel.findById(courseId);
+
+      //metode yang digunakan untuk memeriksa apakah suatu nilai adalah ID yang valid dalam format yang diharapkan oleh MongoDB.
+      if (!mongoose.Types.ObjectId.isValid(contentId)) {
+        return next(new ErrorHandler("Invalid course id", 400));
+      }
+
+      //setelah itu ambil content Id
+      const courseContent = course?.courseData?.find((item: any) =>
+        item._id.equals(contentId)
+      );
+      if (!courseContent) {
+        return next(new ErrorHandler("Invalid content id", 400));
+      }
+
+      //setelah itu ambil question Id
+      const question = courseContent?.questions?.find((item: any) =>
+        item._id.equals(questionId)
+      );
+
+      if (!question) {
+        return next(new ErrorHandler("Invalid question id", 400));
+      }
+
+      //create a new question object
+      const addAnswer: any = {
+        user: req.user,
+        answer,
+      };
+
+      //add questions to our course content
+      question.questionReplies?.push(addAnswer);
+
+      //save and updated course
+      await course?.save();
+
+      if (req.user?._id === question.user._id) {
+        //create a notification
+      } else {
+        const data = {
+          name: question.user.name,
+          title: courseContent.title,
+        };
+        const html = await ejs.renderFile(
+          path.join(__dirname, "../mails/question-reply.ejs"),
+          data
+        );
+        try {
+          await sendMail({
+            email: question.user.email,
+            subject: "Question Reply",
+            template: "question-reply.ejs",
+            data,
+          });
+        } catch (error: any) {
+          return next(new ErrorHandler(error.message, 400));
+        }
+      }
+
+      res.status(201).json({
+        success: true,
+        course,
+      })
+
+      res.status(201).json({
+        success: true,
+        course,
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
     }
   }
 );
