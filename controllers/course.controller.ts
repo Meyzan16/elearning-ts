@@ -317,7 +317,7 @@ export const addReview = CatchAsyncError(
       const course = await CourseModel.findById(courseId);
       const { review, rating } = req.body as IAddReviewData;
 
-      const reviewData:any = {
+      const reviewData: any = {
         user: req.user,
         comment: review,
         rating,
@@ -325,27 +325,65 @@ export const addReview = CatchAsyncError(
 
       course?.reviews.push(reviewData);
       let avg = 0;
-      course?.reviews.forEach((rev:any)=>{
-        avg += rev.rating
+      course?.reviews.forEach((rev: any) => {
+        avg += rev.rating;
       });
 
-      if(course){
-        course.ratings = avg / course.reviews.length;  //example 2 revies satu review bintang 5 dan  1 review bintang 4 maka 9/2 = 4.5;
+      if (course) {
+        course.ratings = avg / course.reviews.length; //example 2 revies satu review bintang 5 dan  1 review bintang 4 maka 9/2 = 4.5;
       }
 
       await course?.save();
       const notification = {
         title: "New review recived",
         message: `${req.user?.name} has given a review in ${course?.name}`,
-      }
+      };
       //create notification
-    
+
       res.status(201).json({
         success: true,
         course,
-      })
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 400));
+    }
+  }
+);
 
-      
+//add reply in review
+interface IAddReviewReply {
+  comment: string;
+  courseId: string;
+  reviewId: string;
+}
+export const addReplyToReview = CatchAsyncError(
+  async (req: any, res: Response, next: NextFunction) => {
+    try {
+      const { comment, courseId, reviewId }: IAddReviewReply = req.body;
+      const course = await CourseModel.findById(courseId);
+      if (!course) {
+        return next(new ErrorHandler("Course not found", 400));
+      }
+      const review = course?.reviews?.find(
+        (rev: any) => rev._id.toString() === reviewId
+      );
+      if (!review) {
+        return next(new ErrorHandler("Review not found", 400));
+      }
+      const replyData: any = {
+        user: req.user,
+        comment,
+      };
+      if (!review.commentReplies) {
+        review.commentReplies = [];
+      }
+      review.commentReplies?.push(replyData);
+
+      await course?.save();
+      res.status(200).json({
+        success: true,
+        course,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 400));
     }
