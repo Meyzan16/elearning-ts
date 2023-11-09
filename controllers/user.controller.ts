@@ -10,7 +10,7 @@ import path from "path";
 import sendMail from "../utils/sendMail";
 import {
   accessTokenOptions,
-  refreshokenOptions,
+  refreshtokenOptions,
   sendToken,
 } from "../utils/jwt";
 import { redis } from "../utils/redis";
@@ -214,7 +214,7 @@ export const updateAccessToken = CatchAsyncError(
         { id: user._id },
         process.env.ACCESS_TOKEN as string,
         {
-          expiresIn: "5m",
+          expiresIn: "1m",
         }
       );
 
@@ -222,14 +222,14 @@ export const updateAccessToken = CatchAsyncError(
         { id: user._id },
         process.env.REFRESH_TOKEN as string,
         {
-          expiresIn: "3d",
+          expiresIn: "1d",
         }
       );
 
       req.user = user;
 
       res.cookie("access_token", accessToken, accessTokenOptions);
-      res.cookie("refresh_token", refreshToken, refreshokenOptions);
+      res.cookie("refresh_token", refreshToken, refreshtokenOptions);
 
       res.status(200).json({
         status: "success",

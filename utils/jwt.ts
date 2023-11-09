@@ -26,8 +26,8 @@ export const accessTokenOptions: ITokenOptions = {
   sameSite: "lax", //(aturan pengiriman cookie)
 };
 
-export const refreshokenOptions: ITokenOptions = {
-   //24 pertama ke jam ,60 pertama menit, 60 kedua detik dan 1000 ke milidetik
+export const refreshtokenOptions: ITokenOptions = {
+   //24 pertama ke jam ,60 pertama menit, 60 kedua detik dan 1000 ke milidetik = berapa haari
   expires: new Date(Date.now() + refreshTokenExpire * 24 * 60 * 60 * 1000),
   maxAge: refreshTokenExpire * 24 * 60 * 60 * 1000,
   httpOnly: true,
@@ -50,7 +50,7 @@ export const sendToken = (user: IUser, statusCode: number, res: Response) => {
   }
 
   res.cookie("access_token", accessToken, accessTokenOptions); //token cookie akses berlakku selam 5 jam
-  res.cookie("refresh_token", refreshToken, refreshokenOptions); //token cookie berlaku 3 hari setelah di buat
+  res.cookie("refresh_token", refreshToken, refreshtokenOptions); //token cookie berlaku 3 hari setelah di buat
 
   res.status(statusCode).json({
     success: true,

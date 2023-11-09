@@ -325,6 +325,7 @@ export const addReview = CatchAsyncError(
 
       course?.reviews.push(reviewData);
       let avg = 0;
+      
       course?.reviews.forEach((rev: any) => {
         avg += rev.rating;
       });
