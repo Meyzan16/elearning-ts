@@ -11,6 +11,7 @@
 
 2. npm i ejs --save-dev @types/ejs untuk  view engine yang menggunakan sintaks JavaScript untuk menghasilkan tampilan.
 3. npm i nodemailer --save-dev @types/nodemailer for email with ts
+4. npm i node-cron @types/node-cron
 
 1. git branch nama-branch
 2. git add

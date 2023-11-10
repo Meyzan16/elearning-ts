@@ -2,13 +2,14 @@ import { NextFunction, Request, Response } from "express";
 import { CatchAsyncError } from "../middleware/catchAsyncErrors";
 import ErrorHandler from "../utils/ErrorHandler";
 import cloudinary from "cloudinary";
-import { createCourse } from "../services/course.service";
+import { createCourse, getAllCourseService } from "../services/course.service";
 import CourseModel from "../models/course.model";
 import { redis } from "../utils/redis";
 import mongoose from "mongoose";
 import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
+import NotificationModel from "../models/notification.model";
 
 //create course
 export const uploadCourse = CatchAsyncError(
@@ -186,6 +187,12 @@ export const addQuestion = CatchAsyncError(
         questionReplies: [],
       };
 
+      await NotificationModel.create({
+        userId: req.user?._id,
+        title: "New Question Received",
+        message: `You have a new question in ${courseContent.title}`,
+      });
+
       //add questions to our course content
       courseContent.questions.push(newQuestion);
 
@@ -231,7 +238,7 @@ export const addAnswer = CatchAsyncError(
         return next(new ErrorHandler("Invalid content id", 400));
       }
 
-      //setelah itu ambil question Id
+      //setelah itu ambil question Id fungsi equals membandingan kedua nilai
       const question = courseContent?.questions?.find((item: any) =>
         item._id.equals(questionId)
       );
@@ -253,7 +260,12 @@ export const addAnswer = CatchAsyncError(
       await course?.save();
 
       if (req.user?._id === question.user._id) {
-        //create a notification
+        await NotificationModel.create({
+          userId: req.user?._id,
+          title: "New Question Reply Received",
+          message: `You have a new question reply in ${courseContent.title}`,
+        });
+
       } else {
         const data = {
           name: question.user.name,
@@ -325,7 +337,7 @@ export const addReview = CatchAsyncError(
 
       course?.reviews.push(reviewData);
       let avg = 0;
-      
+
       course?.reviews.forEach((rev: any) => {
         avg += rev.rating;
       });
@@ -390,3 +402,12 @@ export const addReplyToReview = CatchAsyncError(
     }
   }
 );
+
+//get all course -- for admin
+export const getAllCourses = CatchAsyncError(async(req:any, res:Response, next:NextFunction) => {
+  try {
+    getAllCourseService(res)
+  } catch (error: any) {
+    return next(new ErrorHandler(error.message, 500));
+  }
+})
