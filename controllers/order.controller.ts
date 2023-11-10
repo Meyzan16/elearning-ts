@@ -10,7 +10,7 @@ import ejs from "ejs";
 import path from "path";
 import sendMail from "../utils/sendMail";
 import { newOrder } from "../services/order.service";
-import NotificationModel from "../models/notification.mode";
+import NotificationModel from "../models/notification.model";
 
 export const createOrder = CatchAsyncError(
   async (req: any, res: Response, next: NextFunction) => {
