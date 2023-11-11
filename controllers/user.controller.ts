@@ -14,7 +14,11 @@ import {
   sendToken,
 } from "../utils/jwt";
 import { redis } from "../utils/redis";
-import { getAllUserService, getUserById } from "../services/user.service";
+import {
+  getAllUserService,
+  getUserById,
+  updateUserRoleService,
+} from "../services/user.service";
 import cloudinary from "cloudinary";
 
 //register user
@@ -26,7 +30,7 @@ interface IRegistrationBody {
 }
 
 export const registrationUser = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { name, email, password } = req.body;
 
@@ -82,7 +86,6 @@ interface IActivationToken {
   token: string;
   activationCode: string;
 }
-
 export const createActivationToken = (user: any): IActivationToken => {
   const activationCode = Math.floor(1000 + Math.random() * 9000).toString();
   const token = JWT.sign(
@@ -104,7 +107,6 @@ interface IActivationRequest {
   activation_token: string;
   activation_code: string;
 }
-
 export const activateUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -145,7 +147,6 @@ interface ILoginRequest {
   email: string;
   password: string;
 }
-//login user
 export const loginUser = CatchAsyncError(
   async (req: Request, res: Response, next: NextFunction) => {
     try {
@@ -165,6 +166,29 @@ export const loginUser = CatchAsyncError(
       }
 
       sendToken(user, 200, res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//login social auth
+interface ISocialAuthBody {
+  email: string;
+  name: string;
+  avatar: string;
+}
+export const socialAuth = CatchAsyncError(
+  async (req: any, res: Response, next: NextFunction) => {
+    try {
+      const { email, name, avatar } = req.body as ISocialAuthBody;
+      const user = await userModel.findOne({ email });
+      if (!user) {
+        const newUser = await userModel.create({ email, name, avatar });
+        sendToken(newUser, 200, res);
+      } else {
+        sendToken(user, 200, res);
+      }
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
@@ -241,7 +265,7 @@ export const updateAccessToken = CatchAsyncError(
   }
 );
 
-//get user info
+//get user info by user
 export const getUserInfo = CatchAsyncError(
   async (req: any, res: Response, next: NextFunction) => {
     try {
@@ -253,30 +277,7 @@ export const getUserInfo = CatchAsyncError(
   }
 );
 
-//social auth
-interface ISocialAuthBody {
-  email: string;
-  name: string;
-  avatar: string;
-}
-export const socialAuth = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
-    try {
-      const { email, name, avatar } = req.body as ISocialAuthBody;
-      const user = await userModel.findOne({ email });
-      if (!user) {
-        const newUser = await userModel.create({ email, name, avatar });
-        sendToken(newUser, 200, res);
-      } else {
-        sendToken(user, 200, res);
-      }
-    } catch (error: any) {
-      return next(new ErrorHandler(error.message, 500));
-    }
-  }
-);
-
-//update user Info
+//update user Info by user
 interface IUpdateUserInfo {
   name?: string;
   email?: string;
@@ -312,6 +313,7 @@ export const updateUserInfo = CatchAsyncError(
   }
 );
 
+//update password by user
 interface IUpdatePassword {
   oldPassword: string;
   newPassword: string;
@@ -325,9 +327,7 @@ export const updatePasswordAuth = CatchAsyncError(
         return next(new ErrorHandler("Please enter old and new password", 400));
       }
 
-      const user = await userModel
-        .findById(req.user?._id)
-        .select("+password");
+      const user = await userModel.findById(req.user?._id).select("+password");
       if (user?.password === undefined) {
         return next(new ErrorHandler("Invalid user", 400));
       }
@@ -351,7 +351,7 @@ export const updatePasswordAuth = CatchAsyncError(
   }
 );
 
-//update profile picture
+//update profile picture by user
 interface IUpdateProfilePicture {
   avatar: string;
 }
@@ -377,7 +377,6 @@ export const updateProfilePicture = CatchAsyncError(
             public_id: myCloud.public_id,
             url: myCloud.secure_url,
           };
-
         } else {
           const myCloud = await cloudinary.v2.uploader.upload(avatar, {
             folder: "avatars",
@@ -392,24 +391,57 @@ export const updateProfilePicture = CatchAsyncError(
       }
 
       await user?.save();
-      await redis.set(userId, JSON.stringify(user))
+      await redis.set(userId, JSON.stringify(user));
       res.status(200).json({
         success: true,
-        user
-      })
-
+        user,
+      });
     } catch (error: any) {
       return next(new ErrorHandler(error.message, 500));
     }
   }
 );
 
-
 //get all users -- for admin
-export const getAllUsers = CatchAsyncError(async(req:any, res:Response, next:NextFunction) => {
-  try {
-      getAllUserService(res)
-  } catch (error: any) {
-    return next(new ErrorHandler(error.message, 500));
+export const getAllUsers = CatchAsyncError(
+  async (req: any, res: Response, next: NextFunction) => {
+    try {
+      getAllUserService(res);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
   }
-})
+);
+
+//update user role
+export const updateUserRole = CatchAsyncError(
+  async (req: any, res: Response, next: NextFunction) => {
+    try {
+      const { id, role } = req.body;
+      updateUserRoleService(res, id, role);
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
+
+//delete user by admin
+export const deleteUser = CatchAsyncError(
+  async (req: Request, res: Response, next: NextFunction) => {
+    try {
+      const { id } = req.params;
+      const user = await userModel.findById(id);
+      if (!user) {
+        return next(new ErrorHandler("User not found", 500));
+      }
+      await user.deleteOne({ id });
+      await redis.del(id);
+      res.status(201).json({
+        success: true,
+        message: "User deleted succesfully",
+      });
+    } catch (error: any) {
+      return next(new ErrorHandler(error.message, 500));
+    }
+  }
+);
