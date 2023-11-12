@@ -6,7 +6,8 @@
 5. create body parser dan  cors origin
 6. konfigurasi database dan redis
 7. konfigurasi errorHandler dan asyncError
-8. npx tsc --init //create tsconfig.ts
+8. npx tsc --init //create tsconfig.ts  
+9. npx tsc --watch //mengkompiler semua perubahan
 
 
 2. npm i ejs --save-dev @types/ejs untuk  view engine yang menggunakan sintaks JavaScript untuk menghasilkan tampilan.

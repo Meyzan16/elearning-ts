@@ -30,7 +30,7 @@ interface IRegistrationBody {
 }
 
 export const registrationUser = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { name, email, password } = req.body;
 
@@ -179,7 +179,7 @@ interface ISocialAuthBody {
   avatar: string;
 }
 export const socialAuth = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { email, name, avatar } = req.body as ISocialAuthBody;
       const user = await userModel.findOne({ email });
@@ -197,13 +197,14 @@ export const socialAuth = CatchAsyncError(
 
 // logout user
 export const logoutUser = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       res.cookie("access_token", "", { maxAge: 1 });
       res.cookie("refresh_token", "", { maxAge: 1 });
 
       const userId = req.user?._id || "";
       redis.del(userId);
+
 
       res.status(200).json({
         success: true,
@@ -217,7 +218,7 @@ export const logoutUser = CatchAsyncError(
 
 //update access token
 export const updateAccessToken = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const refresh_token = req.cookies.refresh_token as string;
       const decoded = JWT.verify(
@@ -267,7 +268,7 @@ export const updateAccessToken = CatchAsyncError(
 
 //get user info by user
 export const getUserInfo = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
       getUserById(userId, res);
@@ -283,7 +284,7 @@ interface IUpdateUserInfo {
   email?: string;
 }
 export const updateUserInfo = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
       const { name, email } = req.body as IUpdateUserInfo;
@@ -319,7 +320,7 @@ interface IUpdatePassword {
   newPassword: string;
 }
 export const updatePasswordAuth = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body as IUpdatePassword;
 
@@ -356,7 +357,7 @@ interface IUpdateProfilePicture {
   avatar: string;
 }
 export const updateProfilePicture = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { avatar } = req.body as IUpdateProfilePicture;
       const userId = req.user?._id;
@@ -404,7 +405,7 @@ export const updateProfilePicture = CatchAsyncError(
 
 //get all users -- for admin
 export const getAllUsers = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       getAllUserService(res);
     } catch (error: any) {
@@ -415,7 +416,7 @@ export const getAllUsers = CatchAsyncError(
 
 //update user role
 export const updateUserRole = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { id, role } = req.body;
       updateUserRoleService(res, id, role);

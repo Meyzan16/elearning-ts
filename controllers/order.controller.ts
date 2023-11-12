@@ -4,7 +4,6 @@ import ErrorHandler from "../utils/ErrorHandler";
 import OrderModel, { IOrder } from "../models/order.model";
 import userModel from "../models/user.model";
 import CourseModel from "../models/course.model";
-import { redis } from "../utils/redis";
 import mongoose from "mongoose";
 import ejs from "ejs";
 import path from "path";
@@ -13,7 +12,7 @@ import { getAllOrderService, newOrder } from "../services/order.service";
 import NotificationModel from "../models/notification.model";
 
 export const createOrder = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { courseId, payment_info }: IOrder = req.body;
 

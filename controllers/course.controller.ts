@@ -68,7 +68,7 @@ export const editCourse = CatchAsyncError(
 
 //get single course --- without purchasing
 export const getSingleCourse = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const courseId = req.params.id;
       const isCacheExist = await redis.get(courseId);
@@ -99,7 +99,7 @@ export const getSingleCourse = CatchAsyncError(
 
 //get all courses --- without purchasing
 export const getAllCourse = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const isCacheExist = await redis.get("allCourses");
       if (isCacheExist) {
@@ -127,7 +127,7 @@ export const getAllCourse = CatchAsyncError(
 
 //get course content -- only for valid user
 export const getCourseByUser = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userCourseList = req.user?.courses;
       const courseId = req.params.id;
@@ -163,7 +163,7 @@ interface IAddQuestionData {
 }
 
 export const addQuestion = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { question, courseId, contentId }: IAddQuestionData = req.body;
       const course = await CourseModel.findById(courseId);
@@ -217,7 +217,7 @@ interface IAddAnswerData {
   questionId: string;
 }
 export const addAnswer = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { answer, courseId, contentId, questionId }: IAddAnswerData =
         req.body;
@@ -310,7 +310,7 @@ interface IAddReviewData {
 }
 
 export const addReview = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const userCourseList = req.user?.courses;
       const courseId = req.params.id;
@@ -370,7 +370,7 @@ interface IAddReviewReply {
   reviewId: string;
 }
 export const addReplyToReview = CatchAsyncError(
-  async (req: any, res: Response, next: NextFunction) => {
+  async (req: Request, res: Response, next: NextFunction) => {
     try {
       const { comment, courseId, reviewId }: IAddReviewReply = req.body;
       const course = await CourseModel.findById(courseId);
