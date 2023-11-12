@@ -30,7 +30,7 @@ interface IRegistrationBody {
 }
 
 export const registrationUser = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { name, email, password } = req.body;
 
@@ -108,7 +108,7 @@ interface IActivationRequest {
   activation_code: string;
 }
 export const activateUser = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { activation_code, activation_token } =
         req.body as IActivationRequest;
@@ -148,7 +148,7 @@ interface ILoginRequest {
   password: string;
 }
 export const loginUser = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { email, password } = req.body as ILoginRequest;
       if (!email || !password) {
@@ -179,7 +179,7 @@ interface ISocialAuthBody {
   avatar: string;
 }
 export const socialAuth = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { email, name, avatar } = req.body as ISocialAuthBody;
       const user = await userModel.findOne({ email });
@@ -197,7 +197,7 @@ export const socialAuth = CatchAsyncError(
 
 // logout user
 export const logoutUser = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       res.cookie("access_token", "", { maxAge: 1 });
       res.cookie("refresh_token", "", { maxAge: 1 });
@@ -218,7 +218,7 @@ export const logoutUser = CatchAsyncError(
 
 //update access token
 export const updateAccessToken = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const refresh_token = req.cookies.refresh_token as string;
       const decoded = JWT.verify(
@@ -268,7 +268,7 @@ export const updateAccessToken = CatchAsyncError(
 
 //get user info by user
 export const getUserInfo = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
       getUserById(userId, res);
@@ -284,7 +284,7 @@ interface IUpdateUserInfo {
   email?: string;
 }
 export const updateUserInfo = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const userId = req.user?._id;
       const { name, email } = req.body as IUpdateUserInfo;
@@ -320,7 +320,7 @@ interface IUpdatePassword {
   newPassword: string;
 }
 export const updatePasswordAuth = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { oldPassword, newPassword } = req.body as IUpdatePassword;
 
@@ -357,7 +357,7 @@ interface IUpdateProfilePicture {
   avatar: string;
 }
 export const updateProfilePicture = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { avatar } = req.body as IUpdateProfilePicture;
       const userId = req.user?._id;
@@ -405,7 +405,7 @@ export const updateProfilePicture = CatchAsyncError(
 
 //get all users -- for admin
 export const getAllUsers = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       getAllUserService(res);
     } catch (error: any) {
@@ -416,7 +416,7 @@ export const getAllUsers = CatchAsyncError(
 
 //update user role
 export const updateUserRole = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { id, role } = req.body;
       updateUserRoleService(res, id, role);
@@ -428,7 +428,7 @@ export const updateUserRole = CatchAsyncError(
 
 //delete user by admin
 export const deleteUser = CatchAsyncError(
-  async (req: Request, res: Response, next: NextFunction) => {
+  async (req: any, res: Response, next: NextFunction) => {
     try {
       const { id } = req.params;
       const user = await userModel.findById(id);

@@ -1,6 +1,7 @@
 1. instal  npm init
-2. install package npm i bcryptjs cookie-parser cors dotenv express ioredis jsonwebtoken mongoose ts-node-dev 
-@types/bcryptjs @types/cookie-parser @types/cors @types/expres @types/jsonwebtoken @types/node typescript
+2. install package => npm i bcryptjs cookie-parser cors dotenv express ioredis jsonwebtoken mongoose ts-node-dev 
+@types/bcryptjs @types/cookie-parser @types/cors @types/express @types/jsonwebtoken @types/node typescript
+
 3. create konfigurasi app.ts  dan server ts
 4. create dev di package json
 5. create body parser dan  cors origin
