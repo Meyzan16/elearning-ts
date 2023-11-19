@@ -205,7 +205,6 @@ export const logoutUser = CatchAsyncError(
       const userId = req.user?._id || "";
       redis.del(userId);
 
-
       res.status(200).json({
         success: true,
         message: "Logged out successfully",
@@ -230,8 +229,11 @@ export const updateAccessToken = CatchAsyncError(
         return next(new ErrorHandler(message, 500));
       }
       const session = await redis.get(decoded.id as string);
+      
       if (!session) {
-        return next(new ErrorHandler(message, 500));
+        return next(
+          new ErrorHandler("Please login for access this resource", 500)
+        );
       }
       const user = JSON.parse(session);
 
@@ -255,6 +257,8 @@ export const updateAccessToken = CatchAsyncError(
 
       res.cookie("access_token", accessToken, accessTokenOptions);
       res.cookie("refresh_token", refreshToken, refreshtokenOptions);
+
+      await redis.set(user._id, JSON.stringify(user), "EX", 86400); //3 hari
 
       res.status(200).json({
         status: "success",

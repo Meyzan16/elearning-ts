@@ -1,3 +1,4 @@
+# server
 1. instal  npm init
 2. install package => npm i bcryptjs cookie-parser cors dotenv express ioredis jsonwebtoken mongoose ts-node-dev 
 @types/bcryptjs @types/cookie-parser @types/cors @types/express @types/jsonwebtoken @types/node typescript
@@ -9,11 +10,9 @@
 7. konfigurasi errorHandler dan asyncError
 8. npx tsc --init //create tsconfig.ts  
 9. npx tsc --watch //mengkompiler semua perubahan
-
-
-2. npm i ejs --save-dev @types/ejs untuk  view engine yang menggunakan sintaks JavaScript untuk menghasilkan tampilan.
-3. npm i nodemailer --save-dev @types/nodemailer for email with ts
-4. npm i node-cron @types/node-cron
+10. npm i ejs --save-dev @types/ejs untuk  view engine yang menggunakan sintaks JavaScript untuk menghasilkan tampilan.
+11. npm i nodemailer --save-dev @types/nodemailer for email with ts
+12. npm i node-cron @types/node-cron
 
 1. git branch nama-branch
 2. git add
