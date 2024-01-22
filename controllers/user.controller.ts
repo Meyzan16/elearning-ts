@@ -32,29 +32,36 @@ interface IRegistrationBody {
 export const registrationUser = CatchAsyncError(
   async (req: any, res: Response, next: NextFunction) => {
     try {
-      const { name, email, password } = req.body;
+      //ambil request body dan inisiasi request
+      const { name, email, password }:IRegistrationBody = req.body ;
 
+      //validation jika email tersedia
       const isEmailExist = await userModel.findOne({ email });
       if (isEmailExist) {
         return next(new ErrorHandler("Email already exist", 400));
       }
 
+      //inisiasi type data lalu kirim ke activate token
       const user: IRegistrationBody = {
         name,
         email,
         password,
       };
 
+      //cretae kode activasi dan token agar keamanan lebih tinggi
       const activationToken = createActivationToken(user);
 
+      //ambil generate kode nya
       const activationCode = activationToken.activationCode;
 
+      //simpan data di varibel data
       const data = {
         user: { name: user.name, password: user.password },
         activationCode,
       };
 
-      const html = await ejs.renderFile(
+      //kirim lewat gmail
+      await ejs.renderFile(
         path.join(__dirname, "../mails/activation-mail.ejs"),
         data
       );
@@ -80,6 +87,7 @@ export const registrationUser = CatchAsyncError(
     }
   }
 );
+
 
 //create token activation
 interface IActivationToken {
